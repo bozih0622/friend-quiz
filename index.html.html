@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>友情大測驗（手機友善版）</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#121a33;
+      --card2:#0f1730;
+      --text:#e9ecff;
+      --muted:#b7c0ff;
+      --line:rgba(255,255,255,.10);
+      --ok:#67f5b5;
+      --warn:#ffd36b;
+      --bad:#ff7b8a;
+      --shadow: 0 14px 36px rgba(0,0,0,.35);
+      --radius: 18px;
+      --tap: 56px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background: radial-gradient(1200px 700px at 15% 10%, #1b2a66 0%, rgba(27,42,102,0) 55%),
+                  radial-gradient(1000px 600px at 90% 10%, #5a2a6a 0%, rgba(90,42,106,0) 55%),
+                  var(--bg);
+      color:var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Heiti TC", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      padding: 18px 14px 90px;
+    }
+
+    .wrap{ max-width: 780px; margin: 0 auto; }
+
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 12px 0 10px;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(11,16,32,.92), rgba(11,16,32,.75));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .title{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    h1{
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: .5px;
+    }
+    .sub{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      box-shadow: 0 8px 18px rgba(0,0,0,.20);
+      user-select:none;
+      white-space:nowrap;
+    }
+    .pill b{ font-weight: 700; }
+
+    .card{
+      margin-top: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .card-head{
+      padding: 14px 14px 10px;
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    label{
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    select{
+      width: 100%;
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+      min-height: var(--tap);
+    }
+
+    .btn{
+      appearance:none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 14px;
+      min-height: var(--tap);
+      padding: 12px 14px;
+      font-size: 16px;
+      font-weight: 650;
+      letter-spacing: .2px;
+      width: 100%;
+      text-align:center;
+      cursor:pointer;
+      user-select:none;
+      touch-action: manipulation;
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .btn:active{ transform: scale(.98); }
+    .btn.small{
+      min-height: 44px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 650;
+      width: auto;
+    }
+
+    .btn.primary{
+      border-color: rgba(103,245,181,.35);
+      background: rgba(103,245,181,.12);
+    }
+    .btn.danger{
+      border-color: rgba(255,123,138,.35);
+      background: rgba(255,123,138,.10);
+    }
+    .btn.ghost{
+      border-color: rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+    }
+
+    .progress-wrap{
+      margin-top: 10px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .bar{
+      flex:1;
+      height: 10px;
+      background: rgba(255,255,255,.10);
+      border-radius: 999px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .bar > i{
+      display:block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(103,245,181,.95), rgba(255,211,107,.95));
+      border-radius: 999px;
+      transition: width .25s ease;
+    }
+    .kpi{
+      font-size: 13px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    .quiz{
+      padding: 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    .qcard{
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.12);
+      overflow:hidden;
+    }
+    .qhead{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+    }
+    .qtitle{
+      margin:0;
+      font-size: 16px;
+      line-height: 1.45;
+      letter-spacing: .2px;
+    }
+    .qmeta{
+      margin-top: 8px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .tag{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.05);
+    }
+    .tag.ok{ border-color: rgba(103,245,181,.35); background: rgba(103,245,181,.10); color: #d7ffe9; }
+    .tag.warn{ border-color: rgba(255,211,107,.35); background: rgba(255,211,107,.10); color: #fff2cf; }
+
+    .opts{
+      padding: 12px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .opt{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      text-align:left;
+    }
+    .opt .left{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .opt .left b{
+      font-size: 16px;
+      letter-spacing:.2px;
+    }
+    .opt .left span{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .opt.selected{
+      border-color: rgba(103,245,181,.45);
+      background: rgba(103,245,181,.16);
+    }
+
+    .footer-actions{
+      padding: 12px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+    }
+
+    .answer{
+      display:none;
+      padding: 12px 14px 14px;
+      border-top: 1px dashed rgba(255,255,255,.18);
+      color: #d7ffe9;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .answer small{
+      display:block;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .hint{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .floating{
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 10px 14px;
+      background: linear-gradient(to top, rgba(11,16,32,.92), rgba(11,16,32,.60));
+      border-top: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+    .floating .wrap{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .toast{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    @media (min-width: 560px){
+      h1{ font-size: 22px; }
+      .opts{ grid-template-columns: 1fr 1fr; }
+      .btn{ font-size: 16px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="wrap">
+      <div class="title">
+        <div>
+          <h1>友情大測驗 🧪</h1>
+          <div class="sub">先選身分，再開打。你的作答會自動儲存，換人也不會互相覆蓋。</div>
+        </div>
+        <div class="pill" id="whoPill">尚未選擇</div>
+      </div>
+      <div class="progress-wrap">
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="kpi" id="kpi">0/0</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <div class="card-head">
+        <div class="row">
+          <div style="flex:1; min-width:220px;">
+            <label for="player">我是誰（填寫者身分）</label>
+            <select id="player">
+              <option value="">請選擇</option>
+              <option value="sheng">sheng🦒</option>
+              <option value="rabbit">電合科技-怡靜（大兔🐰）</option>
+              <option value="gemini">南區👴🏻雙子男</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+            <button class="btn small ghost" id="exportBtn" type="button">匯出我的紀錄</button>
+            <button class="btn small danger" id="clearBtn" type="button">清除我的作答</button>
+          </div>
+        </div>
+        <div class="hint">
+          小提醒：這是 <b>2025/11</b> 的題庫示範（5 題）。之後每月要新增題庫，只要照同樣格式加進去即可。
+        </div>
+      </div>
+
+      <div class="quiz" id="quiz"></div>
+    </section>
+  </main>
+
+  <div class="floating">
+    <div class="wrap">
+      <div class="toast" id="toast">尚未選擇身分</div>
+      <button class="btn small primary" id="scrollTopBtn" type="button">回頂端</button>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const MONTH_ID = "2025_11";
+  const STORAGE_PREFIX = `friendQuiz_${MONTH_ID}_`;
+
+  // 2025/11 題庫（依你們聊天梗整理）
+  const quizData = [
+    {
+      q: "大家約出門時，最常出現的流程是？",
+      options: ["先逛再吃", "先吃再逛", "到現場再吵", "各自偷查 Google Map"],
+      answer: 1,
+      note: "群組一開始就投票『先吃再逛』，理由還包含：吃飽會飽睏比較不亂花錢。"
+    },
+    {
+      q: "關於『湯咖哩』那段，最後的結果最接近哪個？",
+      options: ["大家一致通過", "被打槍（至少咖哩那部分）", "當天才決定", "改吃火鍋"],
+      answer: 1,
+      note: "大兔回報『被打槍了哈哈哈（咖喱的部分）』。"
+    },
+    {
+      q: "誰最常出現『我都可以』系反應？",
+      options: ["sheng🦒", "大兔🐰", "雙子男👴🏻", "其實大家都會"],
+      answer: 3,
+      note: "你們三個輪流『我都可以』，堪稱群組口頭禪合唱團。"
+    },
+    {
+      q: "群組裡最容易把話題帶到『梗圖／貼圖』的是？",
+      options: ["sheng🦒", "大兔🐰", "雙子男👴🏻", "三人聯手都很強"],
+      answer: 3,
+      note: "從『貼圖』到『梗圖更新』一路火力全開，屬於團體技。"
+    },
+    {
+      q: "以下哪句最像你們群組的氣氛？",
+      options: ["我們理性討論一下", "我先確認一下", "哈哈哈哈哈哈哈", "請提供會議記錄"],
+      answer: 2,
+      note: "你們的『哈哈』密度高到可以拿去當背景音效。"
+    }
+  ];
+
+  const $ = (sel) => document.querySelector(sel);
+  const quizEl = $("#quiz");
+  const playerEl = $("#player");
+  const whoPill = $("#whoPill");
+  const toastEl = $("#toast");
+  const barFill = $("#barFill");
+  const kpiEl = $("#kpi");
+  const clearBtn = $("#clearBtn");
+  const exportBtn = $("#exportBtn");
+  const scrollTopBtn = $("#scrollTopBtn");
+
+  function storageKey(player){
+    return STORAGE_PREFIX + player;
+  }
+
+  function getPlayer(){
+    return playerEl.value;
+  }
+
+  function loadAnswers(player){
+    if (!player) return {};
+    try {
+      return JSON.parse(localStorage.getItem(storageKey(player)) || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  function saveAnswer(player, qIndex, optIndex){
+    const data = loadAnswers(player);
+    data[qIndex] = optIndex;
+    localStorage.setItem(storageKey(player), JSON.stringify(data));
+  }
+
+  function answeredCount(player){
+    const data = loadAnswers(player);
+    return Object.keys(data).length;
+  }
+
+  function setToast(msg){
+    toastEl.textContent = msg;
+  }
+
+  function setWhoPill(player){
+    const map = {
+      sheng: "目前：sheng🦒",
+      rabbit: "目前：大兔🐰",
+      gemini: "目前：雙子男👴🏻"
+    };
+    whoPill.innerHTML = player ? `<b>${map[player]}</b>` : "尚未選擇";
+  }
+
+  function updateProgress(player){
+    const done = player ? answeredCount(player) : 0;
+    const total = quizData.length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    barFill.style.width = `${pct}%`;
+    kpiEl.textContent = `${done}/${total}`;
+  }
+
+  function render(){
+    const player = getPlayer();
+    setWhoPill(player);
+    updateProgress(player);
+
+    if (!player){
+      quizEl.innerHTML = `
+        <div style="padding:14px; color: rgba(255,255,255,.75); line-height:1.6;">
+          請先在上方選擇你的身分，題目才會出現。<br>
+          你選好之後，每一題的作答會自動儲存，不怕手滑退出。
+        </div>
+      `;
+      setToast("尚未選擇身分");
+      return;
+    }
+
+    const answers = loadAnswers(player);
+    setToast("已載入你的作答紀錄 ✅");
+
+    quizEl.innerHTML = "";
+    quizData.forEach((item, i) => {
+      const selected = (answers[i] !== undefined) ? answers[i] : null;
+
+      const qCard = document.createElement("div");
+      qCard.className = "qcard";
+
+      const isAnswered = selected !== null;
+      const tagText = isAnswered ? "已作答" : "未作答";
+      const tagClass = isAnswered ? "ok" : "warn";
+
+      qCard.innerHTML = `
+        <div class="qhead">
+          <p class="qtitle">${i+1}. ${item.q}</p>
+          <div class="qmeta">
+            <span class="tag ${tagClass}">${tagText}</span>
+            ${isAnswered ? `<span class="tag">你的選擇：${item.options[selected]}</span>` : `<span class="tag">尚未選擇</span>`}
+          </div>
+        </div>
+        <div class="opts" id="opts_${i}"></div>
+        <div class="answer" id="ans_${i}">
+          <b>正確答案：</b>${item.options[item.answer]}
+          <small>小彩蛋：${item.note}</small>
+        </div>
+        <div class="footer-actions">
+          <button class="btn small ghost" type="button" data-action="toggle" data-i="${i}">顯示答案</button>
+          <button class="btn small ghost" type="button" data-action="scroll" data-i="${i}">回到題目頂</button>
+        </div>
+      `;
+
+      const opts = qCard.querySelector(`#opts_${i}`);
+      item.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn opt" + (selected === idx ? " selected" : "");
+        btn.innerHTML = `
+          <div class="left">
+            <b>${opt}</b>
+            <span>點一下就選，會自動儲存</span>
+          </div>
+          <div style="opacity:.85;">${selected === idx ? "✅" : ""}</div>
+        `;
+        btn.addEventListener("click", () => {
+          saveAnswer(player, i, idx);
+          setToast(`第 ${i+1} 題已儲存 ✅`);
+          render(); // 重新渲染以更新高亮與進度
+        });
+        opts.appendChild(btn);
+      });
+
+      quizEl.appendChild(qCard);
+    });
+  }
+
+  quizEl.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+    const i = Number(btn.dataset.i);
+
+    if (action === "toggle"){
+      const ans = document.getElementById(`ans_${i}`);
+      const showing = ans.style.display === "block";
+      ans.style.display = showing ? "none" : "block";
+      btn.textContent = showing ? "顯示答案" : "隱藏答案";
+      setToast(showing ? "已隱藏答案" : "已顯示答案");
+    }
+
+    if (action === "scroll"){
+      const card = btn.closest(".qcard");
+      card?.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  });
+
+  playerEl.addEventListener("change", () => {
+    const p = getPlayer();
+    render();
+    if (p) setToast("切換身分完成，已載入該身分紀錄 ✅");
+  });
+
+  clearBtn.addEventListener("click", () => {
+    const player = getPlayer();
+    if (!player){
+      setToast("請先選身分再清除");
+      return;
+    }
+    localStorage.removeItem(storageKey(player));
+    setToast("已清除你的作答紀錄 🧹");
+    render();
+  });
+
+  exportBtn.addEventListener("click", async () => {
+    const player = getPlayer();
+    if (!player){
+      setToast("請先選身分再匯出");
+      return;
+    }
+    const data = loadAnswers(player);
+    const payload = {
+      month: MONTH_ID,
+      player,
+      answers: data,
+      exportedAt: new Date().toISOString()
+    };
+    const text = JSON.stringify(payload, null, 2);
+
+    try{
+      await navigator.clipboard.writeText(text);
+      setToast("已複製到剪貼簿 📋");
+    }catch{
+      window.prompt("複製以下文字：", text);
+      setToast("已用備援方式匯出");
+    }
+  });
+
+  scrollTopBtn.addEventListener("click", () => {
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
